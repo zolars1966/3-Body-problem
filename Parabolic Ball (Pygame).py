@@ -26,31 +26,6 @@ class Object:
         self.vel = vel
         self.mass = mass
 
-
-def left_click():
-    global l_press
-    if event.type == pg.MOUSEBUTTONDOWN:
-        if event.button == 1 and not l_press:
-            l_press = True
-            return True
-    elif event.type == pg.MOUSEBUTTONUP:
-        if event.button == 1:
-            l_press = False
-    return False
-
-
-def right_click():
-    global r_press
-    if event.type == pg.MOUSEBUTTONDOWN:
-        if event.button == 3 and not r_press:
-            r_press = True
-            return True
-    elif event.type == pg.MOUSEBUTTONUP:
-        if event.button == 3:
-            r_press = False
-    return False
-
-
 # global references
 try:
     SIZE = WIDTH, HEIGHT = int(sys.argv[1]), int(sys.argv[2])
@@ -58,7 +33,6 @@ except IndexError:
     SIZE = WIDTH, HEIGHT = 800, 800
 H_SIZE = H_WIDTH, H_HEIGHT = WIDTH / 2, HEIGHT / 2
 TICK_RATE = 120
-l_press, r_press = False, False
 DELTA_TIME = 1 / TICK_RATE
 g = 9.81
 
@@ -103,14 +77,6 @@ if __name__ == "__main__":
                 if event.key == pg.K_i:
                     TICK_RATE += 1
                     upd_ticks = pg.time.get_ticks()
-        
-        if left_click():
-            # do something
-            pass
-        
-        if right_click():
-            # do something
-            pass
 
         # game Assets/UI/elements drawing
         pg.draw.circle(screen, (255, 0, 0), transform_coords(obj.pos), 10)
