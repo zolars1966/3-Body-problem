@@ -1,4 +1,4 @@
-"""
+/*
 
 A simple Earth gravitation simulation. 
 Object takes off at an angle 45 degrees to the floor
@@ -9,7 +9,7 @@ Created and codded by Arseny Zolotarev (Tuesday, 18 of July, 2023)
 
 © 2019-2023 Zolars
   
-"""
+*/
 
 #include <iostream>
 #include <math.h>
