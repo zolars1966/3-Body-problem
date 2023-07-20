@@ -26,6 +26,7 @@ class Object:
         self.vel = vel
         self.mass = mass
 
+
 # global references
 try:
     SIZE = WIDTH, HEIGHT = int(sys.argv[1]), int(sys.argv[2])
@@ -33,12 +34,13 @@ except IndexError:
     SIZE = WIDTH, HEIGHT = 800, 800
 H_SIZE = H_WIDTH, H_HEIGHT = WIDTH / 2, HEIGHT / 2
 TICK_RATE = 120
+l_press, r_press = False, False
 DELTA_TIME = 1 / TICK_RATE
 g = 9.81
 
 
 def transform_coords(position):
-    return [position[0] * 10 + H_WIDTH / 2, H_HEIGHT - position[1] * 10]
+    return [position[0] * 20 + H_WIDTH / 2, H_HEIGHT - position[1] * 20]
 
 
 def update_state(a, obj):
@@ -57,31 +59,43 @@ if __name__ == "__main__":
     # creating the game logic / environment sample
     obj = Object(mass=2.25, vel=[7.071067, 7.071067])
     a = [0, -g]
+    col = (rand.randint(0, 255), rand.randint(0, 255), rand.randint(0, 255))
+    old_coords = transform_coords([0, 0])
 
     upd_ticks = pg.time.get_ticks()
+    screen.fill((200, 200, 200))
 
     # main cycle
     while True:
-        # surfaces cleaning
-        screen.fill((200, 200, 200))
-        
         # checking for keyboard, window, mouse inputs or events
         keys = pg.key.get_pressed()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_u:
-                    TICK_RATE -= 1
-                    upd_ticks = pg.time.get_ticks()
-                if event.key == pg.K_i:
-                    TICK_RATE += 1
-                    upd_ticks = pg.time.get_ticks()
+                # if event.key == pg.K_u:
+                #     TICK_RATE -= 1
+                #     upd_ticks = pg.time.get_ticks()
+                # if event.key == pg.K_i:
+                #     TICK_RATE += 1
+                #     upd_ticks = pg.time.get_ticks()
+                if event.key == pg.K_c:
+                    screen.fill((200, 200, 200))
+                if event.key == pg.K_d or event.key == pg.K_r:
+                    if event.key == pg.K_d:
+                        DELTA_TIME = float(input("Write new time period: "))
+                        TICK_RATE = 1 / DELTA_TIME
+
+                    obj = Object(mass=2.25, vel=[7.071067, 7.071067], pos=[0, 0])
+                    old_coords = transform_coords([0, 0])
+                    a = [0, -g]
+                    col = (rand.randint(0, 255), rand.randint(0, 255), rand.randint(0, 255))
 
         # game Assets/UI/elements drawing
-        pg.draw.circle(screen, (255, 0, 0), transform_coords(obj.pos), 10)
+        pg.draw.line(screen, col, old_coords, transform_coords(obj.pos), 5)
+        old_coords = transform_coords(obj.pos)
 
-        # game environment updating
+        # game environment updating (with vertical synchronization)
         if 0 <= pg.time.get_ticks() - upd_ticks - (1000 / TICK_RATE):
             upd_ticks = pg.time.get_ticks()
             # calling for game environment to update
