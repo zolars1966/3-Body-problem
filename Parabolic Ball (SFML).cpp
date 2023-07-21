@@ -18,6 +18,7 @@ Created and codded by Arseny Zolotarev (Tuesday, 18 of July, 2023)
 #include <math.h>
 #include <time.h>
 
+
 // Including resource files path
 
 #include "ResourcePath.hpp"
@@ -99,10 +100,11 @@ int main() {
     
     // Creating window
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "MIPH (visual)");
-    window.setFramerateLimit(100);
+//    window.setFramerateLimit(100);
 //    window.setVerticalSyncEnabled(true);
     
     FPS fps;
+    Clock dTime;
     
     // Main cycle
         
@@ -116,15 +118,18 @@ int main() {
             if (event.type == Event::KeyPressed){
                 if (Keyboard::isKeyPressed(Keyboard::P))
                     printf(monitorText, deltaTime, obj.pos, obj.vel.length(), obj.vel, obj.mass);
-                if (Keyboard::isKeyPressed(Keyboard::R)){
+                if (Keyboard::isKeyPressed(Keyboard::R) || Keyboard::isKeyPressed(Keyboard::D)){
+                    if (Keyboard::isKeyPressed(Keyboard::D)){ cout << "Write new time period: "; cin >> deltaTime; }
                     obj.pos.x = 0; obj.pos.y = 0;
                     obj.mass = 2.25;
                     obj.vel.x = 7.071; obj.vel.y = 7.071;
                     a = {0, -g};
                     
-                    lines.clear();
+//                    lines.clear();
                     lines.append(Vector2f(H_WIDTH / 2, H_HEIGHT));
-                    linesCount = 0;
+                    lines[linesCount++].color = Color(200, 200, 200);
+                    lines[linesCount].color = Color(200, 200, 200);
+//                    linesCount = 0;
                 }
             }
               
@@ -143,8 +148,7 @@ int main() {
         window.clear(Color(200, 200, 200));
         
         lines.append(sf::Vector2f(obj.pos.x * 20 + H_WIDTH / 2, H_HEIGHT - obj.pos.y * 20));
-        lines[linesCount].color = Color(255, 100, 100);
-        linesCount++;
+        lines[++linesCount].color = Color(255, 100, 100);
         CircleShape ball(5, 10);
         ball.setPosition(obj.pos.x * 20 + H_WIDTH / 2, H_HEIGHT - obj.pos.y * 20);
         
@@ -153,9 +157,12 @@ int main() {
 
         // Environments updating
         
-        a = {0, -g};
-        obj.vel.x += a.x * deltaTime; obj.vel.y += a.y * deltaTime;
-        obj.pos.x += obj.vel.x * deltaTime; obj.pos.y += obj.vel.y * deltaTime;
+        if (dTime.getElapsedTime().asSeconds() >= deltaTime){
+            a = {0, -g};
+            obj.vel.x += a.x * deltaTime; obj.vel.y += a.y * deltaTime;
+            obj.pos.x += obj.vel.x * deltaTime; obj.pos.y += obj.vel.y * deltaTime;
+            dTime.restart();
+        }
 
         // Screen updating
 
