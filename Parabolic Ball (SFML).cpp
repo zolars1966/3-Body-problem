@@ -72,8 +72,6 @@ const char *monitorText =
   "Velocity: %Lf\n"
   "Projected velocity: (%Lf, %Lf)\n"
   "Mass: %Lf\n";
-  // "Acceleration: %f\n"
-  // "Acceleration (Ox, Oy): (%Lf, %Lf)\n";
 
 double deltaTime = 0.01f, g = 9.81f;
 float WIDTH = 800, HEIGHT = 800, H_WIDTH = WIDTH / 2, H_HEIGHT = HEIGHT / 2, ASPECT_RATIO = WIDTH / HEIGHT;
@@ -125,11 +123,9 @@ int main() {
                     obj.vel.x = 7.071; obj.vel.y = 7.071;
                     a = {0, -g};
                     
-//                    lines.clear();
                     lines.append(Vector2f(H_WIDTH / 2, H_HEIGHT));
                     lines[linesCount++].color = Color(200, 200, 200);
                     lines[linesCount].color = Color(200, 200, 200);
-//                    linesCount = 0;
                 }
             }
               
