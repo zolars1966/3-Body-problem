@@ -73,12 +73,6 @@ if __name__ == "__main__":
             if event.type == pg.QUIT:
                 exit()
             if event.type == pg.KEYDOWN:
-                # if event.key == pg.K_u:
-                #     TICK_RATE -= 1
-                #     upd_ticks = pg.time.get_ticks()
-                # if event.key == pg.K_i:
-                #     TICK_RATE += 1
-                #     upd_ticks = pg.time.get_ticks()
                 if event.key == pg.K_c:
                     screen.fill((200, 200, 200))
                 if event.key == pg.K_d or event.key == pg.K_r:
