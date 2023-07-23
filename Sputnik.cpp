@@ -19,7 +19,6 @@ Created and codded by Arseny Zolotarev (Tuesday, 18 of July, 2023)
 
 
 // Including resource files path
-
 #include "ResourcePath.hpp"
 
 
@@ -28,7 +27,6 @@ using namespace sf;
 
 
 // Framerate class
-
 class FPS{
 public:
     FPS(): mFrame(0), mFps(0) {}
@@ -46,7 +44,6 @@ private:
 
 
 // 2D Vector structure
-
 struct vec {
     long double x, y;
     double length(){
@@ -56,25 +53,19 @@ struct vec {
 
 
 // 2D object structure
-
 struct Object {
-    vec pos, vel = {1, 0};
+    vec pos, vel = {1., 0.}, a = {0., 0.};
     double mass = 1.;
 };
 
 
+double dist_S(vec v1, vec v2){
+    return (v1.x - v2.x)*(v1.x - v2.x) + (v1.y - v2.y)*(v1.y - v2.y);
+}
+
+
 // Global varibales
-
-const char *monitorText =
-  "Delta time: %f\n"
-  "Position: (%Lf, %Lf)\n"
-  "Velocity: %Lf\n"
-  "Projected velocity: (%Lf, %Lf)\n"
-  "Mass: %Lf\n";
-//   "Acceleration: %f\n"
-//   "Acceleration (Ox, Oy): (%Lf, %Lf)\n";
-
-double deltaTime = 0.005f, g = 9.81f;
+double deltaTime = 0.01f, g = 9.81f;
 float WIDTH = 800, HEIGHT = 800, H_WIDTH = WIDTH / 2, H_HEIGHT = HEIGHT / 2, ASPECT_RATIO = WIDTH / HEIGHT;
 
 
@@ -83,21 +74,19 @@ int main() {
     // Creating environment
     Object planet, sputnik;
     
-    planet.mass = 27;
-    planet.vel.x = 0; planet.vel.y = 0;
+    planet.mass = 5;
+    planet.pos = {0, 0};
+    planet.vel = {0, -0.025};
     
-    sputnik.pos.x = 15; sputnik.pos.y = 0;
     sputnik.mass = 1;
-    sputnik.vel.x = 0; sputnik.vel.y = 5;
-
-    vec a = {planet.mass / -sputnik.pos.x, 0};
+    sputnik.pos = {10, 0};
+    sputnik.vel = {0, 2.25};
     
     // Trajectory vector
-    VertexArray lines(LineStrip, 1);
-    lines[0].position = Vector2f(H_WIDTH + 300, H_HEIGHT);
+    VertexArray lines_s(LineStrip, 1);
+    lines_s[0].position = Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20);
     int linesCount = 0;
-
-    printf(monitorText, deltaTime, sputnik.pos, sputnik.vel.length(), sputnik.vel, sputnik.mass);
+    bool speedUp = false;
     
     // Creating window
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "MIPH (visual)");
@@ -116,23 +105,23 @@ int main() {
                 window.close();
             
             if (event.type == Event::KeyPressed){
-                if (Keyboard::isKeyPressed(Keyboard::P))
-                    printf(monitorText, deltaTime, sputnik.pos, sputnik.vel.length(), sputnik.vel, sputnik.mass);
+                if (Keyboard::isKeyPressed(Keyboard::S))
+                    speedUp ^= 1;
+                
                 if (Keyboard::isKeyPressed(Keyboard::R) || Keyboard::isKeyPressed(Keyboard::D)){
                     if (Keyboard::isKeyPressed(Keyboard::D)){ cout << "Write new time period: "; cin >> deltaTime; };
 
-                    planet.mass = 27;
-                    planet.vel.x = 0; planet.vel.y = 0;
+                    planet.mass = 5;
+                    planet.pos = {0, 0};
+                    planet.vel = {0, -0.025};
                     
-                    sputnik.pos.x = 15; sputnik.pos.y = 0;
                     sputnik.mass = 1;
-                    sputnik.vel.x = 0; sputnik.vel.y = 5;
-
-                    a = {planet.mass / -sputnik.pos.x, 0};
+                    sputnik.pos = {10, 0};
+                    sputnik.vel = {0, 2.25};
                     
-                    lines.append(Vector2f(H_WIDTH, H_HEIGHT));
-                    lines[linesCount++].color = Color(200, 200, 200);
-                    lines[linesCount].color = Color(200, 200, 200);
+                    lines_s.append(Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
+                    lines_s[linesCount++].color = Color(200, 200, 200);
+                    lines_s[linesCount].color = Color(200, 200, 200);
                 }
             }
               
@@ -150,19 +139,37 @@ int main() {
         // Drawing
         window.clear(Color(200, 200, 200));
         
-        lines.append(sf::Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
-        lines[++linesCount].color = Color(255, 100, 100);
+        lines_s.append(sf::Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
+        lines_s[++linesCount].color = Color(100, 255, 100);
         CircleShape ball(5, 10);
-        ball.setPosition(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20);
+        CircleShape ball2(25, 25);
+
+        ball.setPosition(sputnik.pos.x * 20 + H_WIDTH - 5, H_HEIGHT - 5 - sputnik.pos.y * 20);
+        ball.setFillColor(Color(255, 100, 100));
+        
+        ball2.setPosition(planet.pos.x * 20 + H_WIDTH - 25, H_HEIGHT - 25 - planet.pos.y * 20);
+        ball2.setFillColor(Color(255, 100, 100));
         
         window.draw(ball);
-        window.draw(lines);
+        window.draw(ball2);
+        window.draw(lines_s);
 
         // Environments updating
-        if (dTime.getElapsedTime().asSeconds() >= deltaTime){
-            a = {planet.mass * sputnik.pos.x / -pow(sputnik.pos.length(), 2), planet.mass * sputnik.pos.y / -pow(sputnik.pos.length(), 2)};
-            sputnik.vel.x += a.x * deltaTime; sputnik.vel.y += a.y * deltaTime;
+        if (dTime.getElapsedTime().asMilliseconds() >= deltaTime * (speedUp ? 100. : 1000.)){
+            sputnik.a = {
+                planet.mass * sputnik.mass * sputnik.pos.x / -dist_S(sputnik.pos, planet.pos),
+                planet.mass * sputnik.mass * sputnik.pos.y / -dist_S(sputnik.pos, planet.pos)};
+
+            sputnik.vel.x += sputnik.a.x * deltaTime; sputnik.vel.y += sputnik.a.y * deltaTime;
             sputnik.pos.x += sputnik.vel.x * deltaTime; sputnik.pos.y += sputnik.vel.y * deltaTime;
+            
+            planet.a = {
+                planet.mass * sputnik.mass * planet.pos.x / -dist_S(sputnik.pos, planet.pos),
+                planet.mass * sputnik.mass * planet.pos.y / -dist_S(sputnik.pos, planet.pos)};
+
+            planet.vel.x += planet.a.x * deltaTime; planet.vel.y += planet.a.y * deltaTime;
+            planet.pos.x += planet.vel.x * deltaTime; planet.pos.y += planet.vel.y * deltaTime;
+                        
             dTime.restart();
         }
 
