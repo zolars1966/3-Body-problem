@@ -47,7 +47,7 @@ def length(vec1, vec2):
 
 
 def length_S(vec1, vec2):
-    return math.sqrt((vec1[0] - vec2[0])*(vec1[0] - vec2[0]) + (vec1[1] - vec2[1])*(vec1[1] - vec2[1]))
+    return (vec1[0] - vec2[0])*(vec1[0] - vec2[0]) + (vec1[1] - vec2[1])*(vec1[1] - vec2[1])
 
 
 def update_state(obj1, obj2):
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     clock = pg.time.Clock()
 
     # creating the game logic / environment sample
-    planet = Object(mass=5, vel=[0., -0.25], pos=[0, 0])
-    sputnik = Object(mass=1, vel=[0, 6.75], pos=[10, 0])
+    planet = Object(mass=5, vel=[0., -0.025], pos=[0, 0])
+    sputnik = Object(mass=1, vel=[0, 2.25], pos=[10, 0])
 
     upd_ticks = pg.time.get_ticks()
     speedup = False
@@ -107,8 +107,8 @@ if __name__ == "__main__":
                     if event.key == pg.K_d:
                         DELTA_TIME = float(input("Write new time period: "))
 
-                    planet = Object(mass=5, vel=[0., -0.25], pos=[0, 0])
-                    sputnik = Object(mass=1, vel=[0, 6.75], pos=[10, 0])
+                    planet = Object(mass=5, vel=[0., -0.025], pos=[0, 0])
+                    sputnik = Object(mass=1, vel=[0, 2.25], pos=[10, 0])
 
                     trajectory_s = [transform_coords(sputnik.pos), transform_coords(sputnik.pos)]
                     trajectory_p = [transform_coords(planet.pos), transform_coords(planet.pos)]
