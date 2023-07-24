@@ -52,23 +52,23 @@ def length_S(vec1, vec2):
 
 def update_state(obj1, obj2):
     # acceleration
-    obj2.a[0] = obj1.mass * obj2.mass * obj2.pos[0] / -length_S(obj1.pos, obj2.pos)
-    obj2.a[1] = obj1.mass * obj2.mass * obj2.pos[1] / -length_S(obj1.pos, obj2.pos)
+    obj2.a[0] = obj1.mass * obj2.mass * -(obj2.pos[0] - obj1.pos[0]) / pow(length_S(obj1.pos, obj2.pos), 1.5)
+    obj2.a[1] = obj1.mass * obj2.mass * -(obj2.pos[1] - obj1.pos[1]) / pow(length_S(obj1.pos, obj2.pos), 1.5)
 
-    obj1.a[0] = obj1.mass * obj2.mass * obj1.pos[0] / -length_S(obj1.pos, obj2.pos)
-    obj1.a[1] = obj1.mass * obj2.mass * obj1.pos[1] / -length_S(obj1.pos, obj2.pos)
+    obj1.a[0] = obj1.mass * obj2.mass * -(obj1.pos[0] - obj2.pos[0]) / pow(length_S(obj1.pos, obj2.pos), 1.5)
+    obj1.a[1] = obj1.mass * obj2.mass * -(obj1.pos[1] - obj2.pos[1]) / pow(length_S(obj1.pos, obj2.pos), 1.5)
 
     # sputnik
     obj2.vel[0] += obj2.a[0] * DELTA_TIME
     obj2.vel[1] += obj2.a[1] * DELTA_TIME
-    obj2.pos[0] += obj2.vel[0] * DELTA_TIME
-    obj2.pos[1] += obj2.vel[1] * DELTA_TIME
+    obj2.pos[0] += obj2.vel[0] / obj2.mass * DELTA_TIME
+    obj2.pos[1] += obj2.vel[1] / obj2.mass * DELTA_TIME
 
     # planet
     obj1.vel[0] += obj1.a[0] * DELTA_TIME
     obj1.vel[1] += obj1.a[1] * DELTA_TIME
-    obj1.pos[0] += obj1.vel[0] * DELTA_TIME
-    obj1.pos[1] += obj1.vel[1] * DELTA_TIME
+    obj1.pos[0] += obj1.vel[0] / obj1.mass * DELTA_TIME
+    obj1.pos[1] += obj1.vel[1] / obj1.mass * DELTA_TIME
 
 
 if __name__ == "__main__":
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     clock = pg.time.Clock()
 
     # creating the game logic / environment sample
-    planet = Object(mass=5, vel=[0., -0.025], pos=[0, 0])
-    sputnik = Object(mass=1, vel=[0, 2.25], pos=[10, 0])
+    planet = Object(mass=250, vel=[0.025, -5], pos=[0, 0])
+    sputnik = Object(mass=1, vel=[0, 5], pos=[10, 0])
 
     upd_ticks = pg.time.get_ticks()
     speedup = False
@@ -107,21 +107,20 @@ if __name__ == "__main__":
                     if event.key == pg.K_d:
                         DELTA_TIME = float(input("Write new time period: "))
 
-                    planet = Object(mass=5, vel=[0., -0.025], pos=[0, 0])
-                    sputnik = Object(mass=1, vel=[0, 2.25], pos=[10, 0])
+                    planet = Object(mass=5, vel=[0., -0.25], pos=[0, 0])
+                    sputnik = Object(mass=1, vel=[0, 6.75], pos=[10, 0])
 
                     trajectory_s = [transform_coords(sputnik.pos), transform_coords(sputnik.pos)]
                     trajectory_p = [transform_coords(planet.pos), transform_coords(planet.pos)]
-
+        
         # game Assets/UI/elements drawing
         pg.draw.circle(screen, (255, 100, 100), transform_coords(planet.pos), 25)
         pg.draw.circle(screen, (255, 100, 100), transform_coords(sputnik.pos), 5)
-        # trajectories
         pg.draw.lines(screen, (100, 255, 100), False, trajectory_p, 3)
         pg.draw.lines(screen, (100, 255, 100), False, trajectory_s, 3)
 
         # game environment updating (with vertical synchronization)
-        if 0 <= pg.time.get_ticks() - upd_ticks - (DELTA_TIME * (speedup and 100 or 1000)):
+        if 0 <= pg.time.get_ticks() - upd_ticks - (DELTA_TIME * (0 if speedup else 1000)):
             upd_ticks = pg.time.get_ticks()
 
             # calling for game environment to update
