@@ -33,7 +33,7 @@ public:
     unsigned int getFPS() const { return mFps; }
     
     void update(){
-        if(mClock.getElapsedTime().asSeconds() >= 1.f){ mFps = mFrame; mFrame = 0; mClock.restart(); }
+        if (mClock.getElapsedTime().asSeconds() >= 1.f){ mFps = mFrame; mFrame = 0; mClock.restart(); }
         mFrame++;
     }
     
@@ -69,26 +69,30 @@ double dist_S(vec v1, vec v2){
 
 
 // Global varibales
-double deltaTime = 0.01f, g = 9.81f;
+double tickRate = 60, deltaTime = 0.005f, coeff = 0.001, simTime = 0;
 float WIDTH = 800, HEIGHT = 800, H_WIDTH = WIDTH / 2, H_HEIGHT = HEIGHT / 2, ASPECT_RATIO = WIDTH / HEIGHT;
 
 
 // Main function
 int main() {
     // Creating environment
-    Object planet, sputnik;
+    Object planet, sputnik, moon;
     
-    planet.mass = 250;
+    planet.mass = 5.9736 * 1e4 * 6.6743;
     planet.pos = {0, 0};
-    planet.vel = {0.025, -5};
+    planet.vel = {0, 0};
     
-    sputnik.mass = 1;
-    sputnik.pos = {10, 0};
-    sputnik.vel = {0, 5};
+    sputnik.mass = 82.6;
+    sputnik.pos = {6659, 0};
+    sputnik.vel = {0, 8};
+    
+    moon.mass = 7.32 * 1e22;
+    moon.pos = {392208, 0};
+    moon.vel = {0, 1};
     
     // Trajectory vector
-    VertexArray lines_s(LineStrip, 1);
-    lines_s[0].position = Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20);
+    VertexArray linesTr(LineStrip, 1);
+    linesTr[0].position = Vector2f(int(sputnik.pos.x * coeff + H_WIDTH), int(H_HEIGHT - sputnik.pos.y * coeff));
     int linesCount = 0;
     bool speedUp = false;
     
@@ -98,7 +102,7 @@ int main() {
 //    window.setVerticalSyncEnabled(true);
     
     FPS fps;
-    Clock dTime;
+    Clock uTime, dTime;
     
     // Main cycle
     while (window.isOpen()){
@@ -108,28 +112,10 @@ int main() {
             if (event.type == Event::Closed)
                 window.close();
             
-            if (event.type == Event::KeyPressed){
+            if (event.type == Event::KeyPressed)
                 if (Keyboard::isKeyPressed(Keyboard::S))
                     speedUp ^= 1;
-                
-                if (Keyboard::isKeyPressed(Keyboard::R) || Keyboard::isKeyPressed(Keyboard::D)){
-                    if (Keyboard::isKeyPressed(Keyboard::D)){ cout << "Write new time period: "; cin >> deltaTime; };
-
-                    planet.mass = 250;
-                    planet.pos = {0, 0};
-                    planet.vel = {0.025, -5};
-                    
-                    sputnik.mass = 1;
-                    sputnik.pos = {10, 0};
-                    sputnik.vel = {0, 5};
-                    
-                    lines_s.clear();
-                    linesCount = 0;
-                    lines_s.append(Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
-                    lines_s[linesCount].color = Color(100, 255, 100);
-                }
-            }
-              
+            
             // Mouse events
             if (event.type == Event::MouseButtonPressed){
                 string filename = resourcePath() + "../../../screenshot.png";
@@ -140,48 +126,63 @@ int main() {
             }
         }
         
-
-        // Drawing
-        window.clear(Color(200, 200, 200));
-        
-        lines_s.append(sf::Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
-        lines_s[++linesCount].color = Color(100, 255, 100);
-        CircleShape ball(5, 10);
-        CircleShape ball2(25, 25);
-
-        ball.setPosition(sputnik.pos.x * 20 + H_WIDTH - 5, H_HEIGHT - 5 - sputnik.pos.y * 20);
-        ball.setFillColor(Color(255, 100, 100));
-        
-        ball2.setPosition(planet.pos.x * 20 + H_WIDTH - 25, H_HEIGHT - 25 - planet.pos.y * 20);
-        ball2.setFillColor(Color(255, 100, 100));
-        
-        window.draw(ball);
-        window.draw(ball2);
-        window.draw(lines_s);
-
         // Environments updating
-        if (dTime.getElapsedTime().asMilliseconds() >= deltaTime * (speedUp ? 0 : 1000.)){
+        if (uTime.getElapsedTime().asSeconds() >= (speedUp ? 0 : deltaTime)){
+            long double r3 = pow(dist(moon.pos, planet.pos), 3);
+            
             sputnik.a = {
-                planet.mass * sputnik.mass * -(sputnik.pos.x - planet.pos.x) / pow(dist_S(sputnik.pos, planet.pos), 1.5),
-                planet.mass * sputnik.mass * -(sputnik.pos.y - planet.pos.y) / pow(dist_S(sputnik.pos, planet.pos), 1.5)};
+                planet.mass * (planet.pos.x - sputnik.pos.x) / pow(dist(sputnik.pos, planet.pos), 3),
+                planet.mass * (planet.pos.y - sputnik.pos.y) / pow(dist(sputnik.pos, planet.pos), 3)
+            };
 
             sputnik.vel.x += sputnik.a.x * deltaTime; sputnik.vel.y += sputnik.a.y * deltaTime;
-            sputnik.pos.x += sputnik.vel.x / sputnik.mass * deltaTime; sputnik.pos.y += sputnik.vel.y / sputnik.mass * deltaTime;
-            
-            planet.a = {
-                planet.mass * sputnik.mass * -(planet.pos.x - sputnik.pos.x) / pow(dist_S(sputnik.pos, planet.pos), 1.5),
-                planet.mass * sputnik.mass * -(planet.pos.y - sputnik.pos.y) / pow(dist_S(sputnik.pos, planet.pos), 1.5)};
+            sputnik.pos.x += sputnik.vel.x * deltaTime; sputnik.pos.y += sputnik.vel.y * deltaTime;
 
-            planet.vel.x += planet.a.x * deltaTime; planet.vel.y += planet.a.y * deltaTime;
-            planet.pos.x += planet.vel.x / planet.mass * deltaTime; planet.pos.y += planet.vel.y / planet.mass * deltaTime;
-                        
-            dTime.restart();
+            moon.a = {
+                planet.mass * (planet.pos.x - moon.pos.x) / r3,
+                planet.mass * (planet.pos.y - moon.pos.y) / r3
+            };
+
+            moon.vel.x += moon.a.x * deltaTime; moon.vel.y += moon.a.y * deltaTime;
+            moon.pos.x += moon.vel.x * deltaTime; moon.pos.y += moon.vel.y * deltaTime;
+
+            simTime += deltaTime;
+            uTime.restart();
         }
 
-        // Screen updating
-        fps.update();
-        window.setTitle("MIPH (visual) fps: " + to_string(fps.getFPS()));
-        window.display();
+        if (dTime.getElapsedTime().asSeconds() >= 1 / tickRate){
+            // Drawing
+            window.clear();
+            
+            Vector2f newLine = Vector2f(int(sputnik.pos.x * coeff + H_WIDTH), int(H_HEIGHT - sputnik.pos.y * coeff));
+            if (linesTr[linesCount].position != newLine){
+                linesTr.append(newLine);
+                linesTr[++linesCount].color = Color(100, 255, 100);
+            }
+            
+            CircleShape ball(4, 4), ball2(6371 * coeff, 50), ball3(1737 * coeff, 30);
+            
+            ball.setPosition(sputnik.pos.x * coeff + H_WIDTH - 4, H_HEIGHT - 4 - sputnik.pos.y * coeff);
+            ball.setFillColor(Color(255, 100, 100));
+            
+            ball2.setPosition(planet.pos.x * coeff + H_WIDTH - 6371 * coeff, H_HEIGHT - 6371 * coeff - planet.pos.y * coeff);
+            ball2.setFillColor(Color(100, 150, 255));
+            
+            ball3.setPosition(moon.pos.x * coeff + H_WIDTH - 1737 * coeff, H_HEIGHT - 1737 * coeff - moon.pos.y * coeff);
+            ball3.setFillColor(Color(200, 200, 200));
+            
+            window.draw(ball);
+            window.draw(ball2);
+            window.draw(ball3);
+            window.draw(linesTr);
+            
+            dTime.restart();
+            
+            // Screen updating
+            fps.update();
+            window.setTitle("$~ MIPH ~fps: " + to_string(fps.getFPS()) + " ~time: " + to_string(simTime));
+            window.display();
+        }
     }
 
     return 0;
