@@ -59,6 +59,10 @@ struct Object {
 };
 
 
+double dist(vec v1, vec v2){
+    return sqrt((v1.x - v2.x)*(v1.x - v2.x) + (v1.y - v2.y)*(v1.y - v2.y));
+}
+
 double dist_S(vec v1, vec v2){
     return (v1.x - v2.x)*(v1.x - v2.x) + (v1.y - v2.y)*(v1.y - v2.y);
 }
@@ -74,13 +78,13 @@ int main() {
     // Creating environment
     Object planet, sputnik;
     
-    planet.mass = 5;
+    planet.mass = 250;
     planet.pos = {0, 0};
-    planet.vel = {0, -0.025};
+    planet.vel = {0.025, -5};
     
     sputnik.mass = 1;
     sputnik.pos = {10, 0};
-    sputnik.vel = {0, 2.25};
+    sputnik.vel = {0, 5};
     
     // Trajectory vector
     VertexArray lines_s(LineStrip, 1);
@@ -111,17 +115,18 @@ int main() {
                 if (Keyboard::isKeyPressed(Keyboard::R) || Keyboard::isKeyPressed(Keyboard::D)){
                     if (Keyboard::isKeyPressed(Keyboard::D)){ cout << "Write new time period: "; cin >> deltaTime; };
 
-                    planet.mass = 5;
+                    planet.mass = 250;
                     planet.pos = {0, 0};
-                    planet.vel = {0, -0.025};
+                    planet.vel = {0.025, -5};
                     
                     sputnik.mass = 1;
                     sputnik.pos = {10, 0};
-                    sputnik.vel = {0, 2.25};
+                    sputnik.vel = {0, 5};
                     
+                    lines_s.clear();
+                    linesCount = 0;
                     lines_s.append(Vector2f(sputnik.pos.x * 20 + H_WIDTH, H_HEIGHT - sputnik.pos.y * 20));
-                    lines_s[linesCount++].color = Color(200, 200, 200);
-                    lines_s[linesCount].color = Color(200, 200, 200);
+                    lines_s[linesCount].color = Color(100, 255, 100);
                 }
             }
               
@@ -155,20 +160,20 @@ int main() {
         window.draw(lines_s);
 
         // Environments updating
-        if (dTime.getElapsedTime().asMilliseconds() >= deltaTime * (speedUp ? 100. : 1000.)){
+        if (dTime.getElapsedTime().asMilliseconds() >= deltaTime * (speedUp ? 0 : 1000.)){
             sputnik.a = {
-                planet.mass * sputnik.mass * sputnik.pos.x / -dist_S(sputnik.pos, planet.pos),
-                planet.mass * sputnik.mass * sputnik.pos.y / -dist_S(sputnik.pos, planet.pos)};
+                planet.mass * sputnik.mass * -(sputnik.pos.x - planet.pos.x) / pow(dist_S(sputnik.pos, planet.pos), 1.5),
+                planet.mass * sputnik.mass * -(sputnik.pos.y - planet.pos.y) / pow(dist_S(sputnik.pos, planet.pos), 1.5)};
 
             sputnik.vel.x += sputnik.a.x * deltaTime; sputnik.vel.y += sputnik.a.y * deltaTime;
-            sputnik.pos.x += sputnik.vel.x * deltaTime; sputnik.pos.y += sputnik.vel.y * deltaTime;
+            sputnik.pos.x += sputnik.vel.x / sputnik.mass * deltaTime; sputnik.pos.y += sputnik.vel.y / sputnik.mass * deltaTime;
             
             planet.a = {
-                planet.mass * sputnik.mass * planet.pos.x / -dist_S(sputnik.pos, planet.pos),
-                planet.mass * sputnik.mass * planet.pos.y / -dist_S(sputnik.pos, planet.pos)};
+                planet.mass * sputnik.mass * -(planet.pos.x - sputnik.pos.x) / pow(dist_S(sputnik.pos, planet.pos), 1.5),
+                planet.mass * sputnik.mass * -(planet.pos.y - sputnik.pos.y) / pow(dist_S(sputnik.pos, planet.pos), 1.5)};
 
             planet.vel.x += planet.a.x * deltaTime; planet.vel.y += planet.a.y * deltaTime;
-            planet.pos.x += planet.vel.x * deltaTime; planet.pos.y += planet.vel.y * deltaTime;
+            planet.pos.x += planet.vel.x / planet.mass * deltaTime; planet.pos.y += planet.vel.y / planet.mass * deltaTime;
                         
             dTime.restart();
         }
