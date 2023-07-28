@@ -20,9 +20,7 @@ using namespace std;
 
 struct vec {
 	long double x, y;
-	double length(){
-		return sqrt(x * x + y * y);
-	}
+	double length(){ return sqrt(x * x + y * y); }
 };
 
 
@@ -38,8 +36,6 @@ const char *monitorText =
   "Velocity: %Lf\n"
   "Projected velocity: (%Lf, %Lf)\n"
   "Mass: %Lf\n";
-  // "Acceleration: %f\n"
-  // "Acceleration (Ox, Oy): (%Lf, %Lf)\n";
 
 double deltaTime = 0.1f, g = 9.81f;
 
