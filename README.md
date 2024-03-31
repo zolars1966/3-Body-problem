@@ -3,6 +3,12 @@
 
 # Images
 
+* N-body 3D
+![Minimap](https://github.com/zolars1966/3-Body-problem/assets/70763346/d976ee8d-3f11-4d18-a5eb-ca8bf0d73f2d)
+![Minimap](https://github.com/zolars1966/3-Body-problem/assets/70763346/53e1fe72-3d6d-4d06-88c4-1cf019eb2cdf)
+![N-body](https://github.com/zolars1966/3-Body-problem/assets/70763346/b53e3277-1c9f-430c-b9de-449e49da49af)
+![N-body](https://github.com/zolars1966/3-Body-problem/assets/70763346/4e39476d-e45f-4db9-9892-0071fa2e99d8)
+
 * 3-body 2d (unsolvable)
 ![3-body](https://github.com/zolars1966/3-Body-problem/assets/70763346/b22bee4e-0870-47ff-bd47-aef828e18fb6)
 
