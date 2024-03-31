@@ -1,6 +1,6 @@
 """
 
-A simple N-body system simulation (now in 3D). 
+A simple 16-body system simulation (now in 3D). 
 Some space objects are randomly generated
 and interacting with each of the others.
 
@@ -424,9 +424,9 @@ if __name__ == "__main__":
 
     colors = np.asarray([1, 1, 1])
     # obj = np.asarray([[planet.pos, sputnik.pos, moon.pos]])
-    tetrahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/tetrahedron.mdl")
+    tetrahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/tetrahedron.mdl")
     cube, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/cube.obj")
-    octahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/octahedron.mdl")
+    octahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/octahedron.mdl")
     sphere, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/sphere.obj")
 
     cube /= 4
