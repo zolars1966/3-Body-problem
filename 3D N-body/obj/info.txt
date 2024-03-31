@@ -1,0 +1,1 @@
+This is a folder with required 3D models in Wavefront OBJ and my own MDL formats.
