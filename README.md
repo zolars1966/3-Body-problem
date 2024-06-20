@@ -1,6 +1,6 @@
 # 3D Graphics and N-Body Simulation Engine
 
-This repository contains a Python-based 3D graphics and N-body simulation engine. It renders and simulates various space objects interacting with each other using an N-body simulation approach, alongside interactive 3D graphics capabilities.
+This repository contains a Python-based 3D graphics and N-body simulation engine. It renders and simulates various space objects interacting with each other using an N-body simulation approach, alongside interactive 3D graphics capabilities. A simple N-body system simulation, now including both 2D and 3D visualization options. Space objects are randomly generated and interact with each other according to the rules of classical mechanics.
 
 ## Features
 
@@ -14,42 +14,80 @@ This repository contains a Python-based 3D graphics and N-body simulation engine
 
 ## Installation
 
-Clone the repository:
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/zolars1966/3-Body-problem.git
+    cd 3-Body-problem
+    ```
 
-```bash
-git clone https://github.com/your_username/your_repo.git
-cd your_repo
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Ensure that Python 3.x and Pygame are installed on your system.
+2. Install required packages:
+    ```bash
+    pip install pygame numpy
+    ```
 
 ## Usage
 
-To run the simulation and visualization engine:
-
+Run the main script:
 ```bash
 python main.py
 ```
 
-### Controls
+## Controls
 
-- **W / S**: Move forward / backward.
-- **A / D**: Rotate left / right.
-- **Q / E**: Move up / down.
-- **Left Click**: Toggle actions based on mouse position.
-- **Right Click**: Reserved for future functionality.
-- **R**: Toggle speed-up mode.
-- **O**: Toggle slow-speed mode.
-- **P**: Pause simulation.
-- **M**: Toggle minimap size.
-- **L**: Toggle display of trajectories.
-- **0-9**: Switch between different lighting models.
+### Mouse Controls:
+
+- **Left Click:** Camera teleportation in the minimap.
+- **Mouse Wheel:** Toggles minimap scale.
+
+### Keyboard Controls:
+
+- **Movement:**
+  - `W`: Move camera forward
+  - `S`: Move camera backward
+  - `A`: Move camera left
+  - `D`: Move camera right
+  - `Q`: Move camera up
+  - `E`: Move camera down
+
+- **Speed Adjustments:**
+  - `Shift`: Increase speed
+  - `Ctrl`: Decrease speed
+
+- **Lighting Models:**
+  - `0`: Carcass
+  - `1`: Diffuse Light
+  - `2`: Lambert
+  - `3`: Wrap
+  - `4`: Phong
+  - `5`: Blinn
+  - `6`: Highlight
+  - `7`: Blinn Highlight
+  - `8`: Metal
+  - `9`: Light Reflect
+
+- **Other Controls:**
+  - `ESC`: Toggle mouse cursor visibility
+  - `R`: Toggle simulation speed
+  - `O`: Toggle slow speedup mode
+  - `P`: Toggle pause
+  - `M`: Toggle minimap size
+  - `L`: Toggle drawing trajectory
+
+## Project Structure
+
+```
+3-Body-problem/
+├── environment.py
+├── globals.py
+├── main.py
+├── README.md
+└── sengine.py
+```
+
+- `environment.py`: Handles the environment and object initialization.
+- `globals.py`: Global variables and configurations.
+- `main.py`: Main script, initializes the Pygame window and starts the simulation.
+- `sengine.py`: Simulation engine, handles the physics and object interactions.
 
 ## Algorithms
 
