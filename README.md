@@ -1,167 +1,649 @@
-# 3-Body-problem
-A simple N-body system simulation, now including both 2D and 3D visualization options. Space objects are randomly generated and interact with each other according to the rules of classical mechanics.
+# 3D Graphics and N-Body Simulation Engine
 
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Controls](#controls)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
-- [Images](#images)
+This repository contains a Python-based 3D graphics and N-body simulation engine. It renders and simulates various space objects interacting with each other using an N-body simulation approach, alongside interactive 3D graphics capabilities.
 
 ## Features
 
-- **2D and 3D Modes:** Both modes are available to visualize the simulation.
-- **Interactive Controls:** Allow for dynamic camera positioning and different lighting models.
-- **Multifile Project:** Structured in multiple Python files for better organization and maintainability.
-- **Random Space Objects:** Objects are randomly generated each time the simulation starts.
+- **Matrix Operations**: Efficiently handles 3D transformations using matrix multiplication.
+- **Rotation Functions**: Provides functions for rotating objects around the X, Y, and Z axes.
+- **Lighting Models**: Implements different lighting models such as Lambertian, Phong, Blinn-Phong, and custom reflection models.
+- **Input Handling**: Includes mouse and keyboard input handling for camera movement and control settings.
+- **3D Model Loading**: Supports loading and rendering of 3D models from OBJ and MDL files.
+- **Interactive Visualization**: Utilizes Pygame for real-time interactive 3D rendering and visualization.
+- **N-Body Simulation**: Simulates gravitational interactions between space objects, displaying their trajectories and interactions.
 
 ## Installation
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/zolars1966/3-Body-problem.git
-    cd 3-Body-problem
-    ```
+Clone the repository:
 
-2. Install required packages:
-    ```bash
-    pip install pygame numpy
-    ```
+```bash
+git clone https://github.com/your_username/your_repo.git
+cd your_repo
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Ensure that Python 3.x and Pygame are installed on your system.
 
 ## Usage
 
-Run the main script:
+To run the simulation and visualization engine:
+
 ```bash
 python main.py
 ```
 
-The application will open a Pygame window displaying the simulation. You can switch between 2D and 3D modes and control various aspects of the simulation using the keyboard.
+### Controls
 
-## Принципы работы алгоритмов для задачи N-тел
-Задача N-тел заключается в вычислении движения N тел, взаимодействующих с гравитацией. Несмотря на то, что аналитических решений для N-тел нет, можно использовать численные методы.
+- **W / S**: Move forward / backward.
+- **A / D**: Rotate left / right.
+- **Q / E**: Move up / down.
+- **Left Click**: Toggle actions based on mouse position.
+- **Right Click**: Reserved for future functionality.
+- **R**: Toggle speed-up mode.
+- **O**: Toggle slow-speed mode.
+- **P**: Pause simulation.
+- **M**: Toggle minimap size.
+- **L**: Toggle display of trajectories.
+- **0-9**: Switch between different lighting models.
 
-### Простые методы
-1. **Метод Эйлера** (наивный подход):
-   - На каждом шаге времени изменяются позиции и скорости тел на основе текущих ускорений.
-   - Простой, но неустойчивый и низкоточный.
+## Algorithms
 
-   ```python
-   def euler_step(bodies, dt):
-       for body in bodies:
-           body.velocity += body.force / body.mass * dt
-           body.position += body.velocity * dt
-   ```
+The N-body problem refers to a classic problem in physics and computational science where the goal is to predict the motion of a group of celestial objects interacting with each other gravitationally or through other forces. Here are explanations of a few algorithms commonly used to solve the N-body problem:
 
-2. **Верле (Velocity Verlet)**:
-   - Улучшает стабильность, делая метод более точным по сравнению с методом Эйлера.
-   - Шаги по вычислению нового положения и скорости чередуются таким образом, чтобы сохранить энергетическую устойчивость.
+### 1. **Direct Summation Method (Brute Force)**
 
-   ```python
-   def velocity_verlet_step(bodies, dt):
-       for body in bodies:
-           new_position = body.position + body.velocity * dt + 0.5 * body.force / body.mass * dt**2
-           new_force = compute_force(bodies)
-           new_velocity = body.velocity + 0.5 * (body.force + new_force) / body.mass * dt
-           body.position = new_position
-           body.velocity = new_velocity
-   ```
+The direct summation method, also known as the brute force method, calculates the force on each particle due to every other particle directly. Here's how it works:
 
-### Эффективные методы
-1. **Barnes-Hut алгоритм**:
-   - Разделяет пространство на квадранты (в 2D) или октанты (в 3D) и использует приближенные силы для дальних тел.
-   - Снижает сложность до \(O(N \log N)\) по сравнению с \(O(N^2)\) для полных вычислений.
+- **Force Calculation**: For each particle \( i \), calculate the force exerted by all other particles \( j \):
+  \[
+  \mathbf{F}_{ij} = G \frac{m_i m_j (\mathbf{r}_j - \mathbf{r}_i)}{|\mathbf{r}_j - \mathbf{r}_i|^3}
+  \]
+  where \( G \) is the gravitational constant, \( m_i, m_j \) are masses of particles \( i \) and \( j \), \( \mathbf{r}_i, \mathbf{r}_j \) are their positions.
 
-   ```python
-   def barnes_hut_step(bodies, dt):
-       tree = build_quad_tree(bodies)
-       for body in bodies:
-           force = compute_force_barnes_hut(tree, body)
-           body.update(force, dt)
-   ```
+- **Integration**: Update positions and velocities of each particle based on forces calculated.
 
-2. **Алгоритм на основе зон пересечения (Fast Multipole Method, FMM)**:
-   - Еще один способ сокращения количества вычислений путем разделения областей притягивающих масс.
-   - Подходит для очень большого числа тел и предоставляет высокую точность.
+- **Complexity**: \( O(N^2) \), where \( N \) is the number of particles. It scales quadratically with the number of particles, making it inefficient for large \( N \).
 
-## Controls
+### 2. **Tree Methods (Barnes-Hut Algorithm)**
 
-### Mouse Controls:
+Tree methods like the Barnes-Hut algorithm are more efficient than the brute force method for large \( N \). They exploit the spatial distribution of particles to reduce the number of force calculations needed.
 
-- **Left Click:** Camera teleportation in the minimap.
-- **Mouse Wheel:** Toggles minimap scale.
+- **Quadtree/Octree Construction**: Particles are organized into a hierarchical tree structure (quadtree for 2D, octree for 3D) based on their positions.
 
-### Keyboard Controls:
+- **Tree Traversal**: For each particle, traverse the tree to calculate forces from distant particles efficiently.
 
-- **Movement:**
-  - `W`: Move camera forward
-  - `S`: Move camera backward
-  - `A`: Move camera left
-  - `D`: Move camera right
-  - `Q`: Move camera up
-  - `E`: Move camera down
+- **Force Approximation**: Instead of calculating forces from every particle, approximate forces using center-of-mass properties of distant clusters of particles.
 
-- **Speed Adjustments:**
-  - `Shift`: Increase speed
-  - `Ctrl`: Decrease speed
+- **Complexity**: Typically \( O(N \log N) \) for well-separated systems, reducing to \( O(N^2) \) in dense systems. This makes it scalable for large \( N \).
 
-- **Lighting Models:**
-  - `0`: Carcass
-  - `1`: Diffuse Light
-  - `2`: Lambert
-  - `3`: Wrap
-  - `4`: Phong
-  - `5`: Blinn
-  - `6`: Highlight
-  - `7`: Blinn Highlight
-  - `8`: Metal
-  - `9`: Light Reflect
+### 3. **Particle Mesh Ewald (PME) Method**
 
-- **Other Controls:**
-  - `ESC`: Toggle mouse cursor visibility
-  - `R`: Toggle simulation speed
-  - `O`: Toggle slow speedup mode
-  - `P`: Toggle pause
-  - `M`: Toggle minimap size
-  - `L`: Toggle drawing trajectory
+PME is particularly suited for simulating periodic systems with long-range interactions, such as molecular dynamics simulations:
 
-## Project Structure
+- **Grid-based Interpolation**: Positions and charges of particles are mapped onto a grid using interpolation methods.
 
+- **Fast Fourier Transform (FFT)**: Fourier transforms are used to efficiently calculate long-range forces in reciprocal space.
+
+- **Direct Space Calculation**: Short-range interactions are calculated directly.
+
+- **Combination of Spaces**: Forces are combined from reciprocal and direct space calculations to get the total force on each particle.
+
+- **Complexity**: \( O(N \log N) \) due to FFT operations, but also depends on grid resolution and system size.
+
+### 4. **Verlet Integration Methods**
+
+Verlet methods are numerical integrators used to update positions and velocities of particles in time-dependent simulations:
+
+- **Leapfrog Integration**: Positions and velocities are updated alternately in half-steps, which ensures energy conservation in Hamiltonian systems.
+
+- **Symplectic Integrators**: These integrators preserve phase space volume, making them ideal for long-term simulations.
+
+- **Integration Steps**: Time integration involves updating positions and velocities using current forces and velocities respectively.
+
+- **Complexity**: Each time step is \( O(N) \), making it efficient for simulations over long periods.
+
+### 5. **Montgomery Sphere**
+The Montgomery Sphere method is a numerical integration technique specifically designed to solve the N-body problem, particularly focusing on systems where the forces between particles are dominated by gravitational interactions. It offers several advantages over traditional integration methods like the Verlet method or direct summation, especially in terms of numerical stability and conservation properties. Here’s an explanation of how the Montgomery Sphere method works specifically for the 3-body problem:
+
+#### Overview of Montgomery Sphere Method
+
+The Montgomery Sphere method introduces an auxiliary sphere in a higher-dimensional space to embed the dynamics of the N-body system. This embedding helps to handle the conservation laws more effectively and mitigate issues related to close encounters between particles in the system.
+
+#### Steps Involved in the Montgomery Sphere Method:
+
+1. **Higher-Dimensional Embedding**:
+   - Represent each particle \( i \) in an \( (N+1) \)-dimensional space, where \( N \) is the number of bodies (particles). The positions and velocities of each particle are extended to this higher-dimensional space.
+
+2. **Sphere Construction**:
+   - Define a hypersphere in this \( (N+1) \)-dimensional space that encapsulates the dynamics of the system. This sphere serves as an auxiliary construct that simplifies the interaction between particles.
+
+3. **Hamiltonian Formulation**:
+   - The dynamics of the particles are described by a Hamiltonian function in the extended phase space. The Hamiltonian typically includes kinetic and potential energy terms for each particle in the system.
+
+4. **Integration Scheme**:
+   - Apply a symplectic integrator to evolve the system over time. Symplectic integrators preserve phase space volume and exhibit long-term stability, which is crucial for accurately simulating the gravitational interactions over extended periods.
+
+5. **Projection**:
+   - Periodically project the positions and velocities of particles back onto the original physical \( N \)-dimensional space. This step ensures that the results remain interpretable in terms of the original physical problem (e.g., three-dimensional space for the 3-body problem).
+
+#### Advantages of Montgomery Sphere Method:
+
+- **Conservation Laws**: The method effectively preserves conservation laws (such as conservation of energy and angular momentum) due to its symplectic nature.
+  
+- **Long-Term Stability**: Unlike some traditional methods, Montgomery Sphere maintains numerical stability over long integration times, crucial for simulating celestial mechanics accurately.
+
+- **Handling Close Encounters**: By embedding particles in a higher-dimensional sphere, the method mitigates issues related to close encounters and gravitational singularities, which can cause numerical instability in traditional methods.
+
+#### Implementation Considerations:
+
+- **Choice of Parameters**: Parameters such as the radius of the sphere and the symplectic integrator used can impact the accuracy and efficiency of the method.
+  
+- **Accuracy vs. Efficiency Trade-off**: Adjustments may be necessary to balance computational efficiency with the desired level of accuracy, particularly for large \( N \).
+
+### Application to the 3-Body Problem:
+
+For the specific case of the 3-body problem, the Montgomery Sphere method offers a robust framework to simulate the gravitational interactions between three particles (e.g., stars, planets) over time. It ensures that the system evolves according to the laws of celestial mechanics while maintaining numerical stability and conservation properties inherent in the method.
+
+In summary, the Montgomery Sphere method extends the traditional phase space of an N-body system into a higher-dimensional sphere, leveraging symplectic integration techniques to accurately model gravitational interactions. This approach is particularly effective for the 3-body problem, ensuring both stability and accuracy in long-term simulations of celestial dynamics.
+
+### Conclusion
+
+Each algorithm has its strengths depending on the specific characteristics of the N-body system being simulated. The choice of algorithm often balances between accuracy, computational efficiency, and scalability with increasing number of particles \( N \). Advanced simulations often employ a combination of these techniques to handle different aspects of the N-body problem effectively.
+
+## Code Explanation
+
+### Import Statements and Class Definitions
+
+```python
+import random as rand
+from body import *
+from globals import *
 ```
-3-Body-problem/
-├── environment.py
-├── globals.py
-├── main.py
-├── README.md
-└── sengine.py
+
+**Class `Environment`**
+
+```python
+class Environment:
+    def __init__(self, *objects, dt=Decimal("0.005")):
+        self.objects = objects
+        self.objects_count = self.n = self.number = self.num = len(self.objects)
+        self.sim_time = 0
+        self.dt = dt
+
+        for body in self.objects:
+            body.dt = self.dt
 ```
 
-- `environment.py`: Handles the environment and object initialization.
-- `globals.py`: Global variables and configurations.
-- `main.py`: Main script, initializes the Pygame window and starts the simulation.
-- `sengine.py`: Simulation engine, handles the physics and object interactions.
+**Explanation:**
 
-## Contributing
+The `Environment` class manages multiple instances of celestial bodies (defined in `body.py`) and their interactions in a simulated environment.
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/NewFeature`).
-3. Commit your changes (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature/NewFeature`).
-5. Create a new Pull Request.
+### String Representation and Utility Methods
 
-## License
+```python
+    def __str__(self):
+        s = "Environment(\n"
 
-© 2019-2024 Zolars
+        for obj in self.objects:
+            s = s + str(obj) + ",\n"
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+        return s + ")\n"
 
-## Acknowledgements
+    @staticmethod
+    def length(x, y, z):
+        return Decimal.sqrt(x * x + y * y + z * z)
+```
 
-Created by Arseny Zolotarev on July 18, 2023.
+**Explanation:**
+
+- **`__str__` Method**: Provides a string representation of the `Environment` class instance, listing all objects within it.
+- **`length` Static Method**: Calculates the Euclidean length of a vector (x, y, z) using the `Decimal` module for precision.
+
+### Object Management Methods
+
+```python
+    def add(self, object):
+        self.objects.append(object)
+        self.objects_count += 1
+
+    def update(self):
+        self.sim_time += self.dt
+
+        for i in range(self.objects_count):
+            for j in range(i + 1, self.objects_count):
+                d1, d2, d3 = (self.objects[i].posx - self.objects[j].posx), \
+                             (self.objects[i].posy - self.objects[j].posy), \
+                             (self.objects[i].posz - self.objects[j].posz)
+
+                l = self.length(d1, d2, d3) ** 3
+
+                d1 /= l
+                d2 /= l
+                d3 /= l
+
+                # acceleration
+                self.objects[i].a1 -= self.objects[j].mass * d1
+                self.objects[i].a2 -= self.objects[j].mass * d2
+                self.objects[i].a3 -= self.objects[j].mass * d3
+
+                self.objects[j].a1 += self.objects[i].mass * d1
+                self.objects[j].a2 += self.objects[i].mass * d2
+                self.objects[j].a3 += self.objects[i].mass * d3
+
+            self.objects[i].update()
+```
+
+**Explanation:**
+
+- **`add` Method**: Adds a new object to `self.objects` and increments `self.objects_count`.
+- **`update` Method**: Advances the simulation time by `self.dt` and computes gravitational interactions between objects using Newton's law.
+
+### Class `Object` and `SpoilerTool`
+
+```python
+from decimal import Decimal
+
+class Object:
+    def __init__(self, pos=[0, 0, 0], vel=[1, 0, 0], mass=1., rad=1, color=(255, 255, 255), dt=Decimal("0.005"), acl=[0, 0, 0], fps=60):
+        self.posx, self.posy, self.posz = list(map(Decimal, pos))
+        self.fpos = list(map(float, pos))
+        self.velx, self.vely, self.velz = list(map(Decimal, vel))
+        self.mass = Decimal(mass)
+        self.a1, self.a2, self.a3 = Decimal(0), Decimal(0), Decimal(0)
+        self.rad = rad
+        self.color = color
+        self.traj = [list(map(float, pos))] * 500
+        self.dt = dt
+
+    def __str__(self):
+        return "Object(pos=" + str((self.posx, self.posy, self.posz)) + ", vel=" + str((self.velx, self.vely, self.velz)) + ", mass=" + str(self.mass) + ", rad=" + str(self.rad) + ", color=" + str(self.color) + ", acl=" + str((self.a1, self.a2, self.a3)) + ")"
+
+    def update(self):
+        self.velx += self.a1 * self.dt
+        self.vely += self.a2 * self.dt
+        self.velz += self.a3 * self.dt
+
+        self.posx += self.velx * self.dt
+        self.posy += self.vely * self.dt
+        self.posz += self.velz * self.dt
+
+        self.a1, self.a2, self.a3 = Decimal(0), Decimal(0), Decimal(0)
+
+        self.fpos = float(self.posx), float(self.posy), float(self.posz)
+
+    def update_trajectory(self):
+        self.traj = self.traj[1:] + [self.fpos]
+
+
+class SpoilerTool(Object):
+    def update(self):
+        self.a1, self.a2, self.a3 = Decimal(0), Decimal(0), Decimal(0)
+        self.fpos = float(self.posx), float(self.posy), float(self.posz)
+
+    # def update_trajectory(self):
+    #     pass
+```
+
+**Explanation:**
+
+- **`Object` Class**: Represents a celestial body with attributes such as position (`posx, posy, posz`), velocity (`velx, vely, velz`), mass (`mass`), radius (`rad`), color (`color`), acceleration (`a1, a2, a3`), and time step (`dt`). It includes methods for updating the object's position and velocity (`update`) and maintaining a trajectory history (`update_trajectory`).
+  
+- **`SpoilerTool` Class**: Inherits from `Object` and overrides the `update` method to reset acceleration (`a1, a2, a3`) and update the floating-point position (`fpos`) without updating the trajectory.
+
+### Conclusion
+
+The repository combines advanced 3D graphics rendering with an N-body simulation engine to simulate gravitational interactions among celestial bodies. It provides a flexible framework for exploring various scenarios in celestial mechanics and dynamics.
+
+Sure, let's split the code into several logical blocks and explain each one:
+
+### Initialization and Setup
+
+```python
+import pygame as pg
+import sys
+import time
+from environment import *
+from sengine import *
+from globals import *
+
+# Define some utility functions
+def get_projections(translated_vec):
+    # Function details omitted for brevity
+    pass
+
+def get_projection_x(translated_vec):
+    # Function details omitted for brevity
+    pass
+
+def cliping(translated_vecs, normals):
+    # Function details omitted for brevity
+    pass
+
+def left_click(event):
+    # Function details omitted for brevity
+    pass
+
+def right_click(event):
+    # Function details omitted for brevity
+    pass
+
+def check_pressed():
+    # Function details omitted for brevity
+    pass
+
+if __name__ == "__main__":
+    # Initialize Pygame window
+    screen = pg.display.set_mode(SIZE, pg.SCALED)
+    mWIDTH, mHEIGHT = mSIZE = (min(SIZE) // 3, min(SIZE) // 3)
+    mH_WIDTH, mH_HEIGHT = mH_SIZE = mWIDTH // 2, mHEIGHT // 2
+    mPOS = mX, mY = WIDTH - mSIZE[0], HEIGHT - mSIZE[1]
+    minimap, axissurf = pg.Surface(mSIZE), pg.Surface(mSIZE)
+    minimap.set_alpha(90)
+    cursor_free = False
+    pg.mouse.set_visible(cursor_free)
+    clock = pg.time.Clock()
+    title = "$~ MIPH Paused. time: "
+```
+
+**Explanation:**
+- Imports necessary libraries and modules.
+- Defines utility functions related to graphics and input handling.
+- Initializes Pygame and sets up the game window (`screen`) with specific dimensions.
+- Initializes surfaces (`minimap`, `axissurf`) and other graphical elements.
+- Sets initial configurations for mouse visibility, clock, and window title.
+
+### Environment Setup and Object Initialization
+
+```python
+# Object initialization (environment setup)
+env = Environment(
+    SpoilerTool(mass=Decimal(64000), pos=[dec(-180), dec(-50), dec(100)], rad=5, color=(255, 122, 0)),
+    SpoilerTool(mass=Decimal(64000), pos=[dec(-20), dec(-50), dec(100)], rad=5, color=(100, 100, 255)),
+    SpoilerTool(mass=Decimal(64000), pos=[dec(-60), dec(20), dec(100)], rad=5, color=(100, 255, 100)),
+    SpoilerTool(mass=Decimal(64000), pos=[dec(-140), dec(0), dec(100)], rad=3, color=(255, 0, 100)),
+)
+
+# Optional: Modify object properties if needed
+for body in env.objects:
+    body.rad = float(body.mass) / 400
+
+print(env)
+
+# Other initializations
+updtr = 0
+upd_ticks, vert_ticks, start_time, upd_time = pg.time.get_ticks(), pg.time.get_ticks(), pg.time.get_ticks(), time.perf_counter_ns()
+delta_ticks, delta_time = 1, 1
+speedup, slow_speedup, pause, enlarge_minimap, draw_traj = False, False, True, False, False
+fix_cam_dist_scale = 0.2
+mmr_scale, mmr_pos, mmr_scaled, minimappos = 1, [0, 0], False, np.asarray([0, 0])
+colors = np.asarray([1, 1, 1])
+tetrahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/tetrahedron.mdl")
+cube, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/cube.obj")
+octahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/octahedron.mdl")
+sphere, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/sphere.obj")
+axes, axes_colors = open_model("/Users/zolars/Documents/Projects/miph/obj/OLC/axis.obj")
+
+# Optional: Modify loaded models or data
+cube /= 4
+tetrahedron = (tetrahedron - np.sum(tetrahedron, axis=1)[:, None] / 4) / 1.25
+```
+
+**Explanation:**
+- Sets up the initial simulation environment (`env`) with specific objects (`SpoilerTool` instances).
+- Modifies properties of each object (e.g., radius) based on its mass.
+- Initializes various flags (`speedup`, `slow_speedup`, etc.) and variables (`fix_cam_dist_scale`, `mmr_scale`, etc.) for control and configuration.
+- Loads and optionally modifies various models (`tetrahedron`, `cube`, etc.) from file paths.
+
+### Main Game Loop
+
+```python
+# Main game loop
+while True:
+    if (speedup or N_DELTA_TIME <= time.perf_counter_ns() - upd_time) and not pause:
+        # Update game environment
+        # Details omitted for brevity
+        env.update()
+
+    if FPS_DT <= pg.time.get_ticks() - vert_ticks:
+        # Handle input events (keyboard, mouse, etc.)
+        # Details omitted for brevity
+
+        # Update camera and other dynamic elements
+        # Details omitted for brevity
+
+        # Draw objects and UI elements
+        # Details omitted for brevity
+
+        # Update screen and handle FPS
+        # Details omitted for brevity
+```
+
+**Explanation:**
+- **Game Environment Update:** Updates the simulation environment (`env`) based on the game's logic and timing (`speedup`, `pause`).
+- **Input Event Handling:** Monitors and reacts to user inputs such as keyboard presses and mouse movements.
+- **Camera and Dynamic Element Updates:** Adjusts the camera position and updates other dynamic elements based on user interaction.
+- **Drawing and UI Elements:** Renders objects (`obj`, `axes`) and UI elements (`minimap`, `axissurf`) on the screen using Pygame's drawing functions.
+- **Screen Update and FPS Control:** Updates the Pygame display (`screen`) and manages the frame rate (`clock.tick()`).
+
+### Conclusion
+
+Each block of the code serves a specific purpose:
+- **Initialization:** Sets up necessary libraries, environment, and objects.
+- **Main Loop:** Handles game logic, user input, updates, and rendering.
+
+Sure, let's split and explain the provided Python code into logical blocks:
+
+### Imports and Matrix Operations
+
+```python
+from math import *
+import numpy as np
+
+
+def matrix_multiply(inp_tri, matrix):    
+    return inp_tri @ matrix[:3] + matrix[3]
+
+
+def rotate_x(fTheta, triangle):
+    rotate_x_matrix = np.array([
+        [1.0, 0.0, 0.0],
+        [0.0, cos(fTheta), sin(fTheta)],
+        [0.0, -sin(fTheta), cos(fTheta)],
+        [0.0, 0.0, 0.0]
+    ])
+
+    return matrix_multiply(triangle, rotate_x_matrix)
+
+
+def rotate_z(fTheta, triangle):
+    rotate_z_matrix = np.array([
+        [cos(fTheta), sin(fTheta), 0.0],
+        [-sin(fTheta), cos(fTheta), 0.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 0.0]
+    ])
+    
+    return matrix_multiply(triangle, rotate_z_matrix)
+
+
+def rotate_y(fTheta, triangle):
+    rotate_y_matrix = np.array([
+        [cos(fTheta), 0.0, sin(fTheta)],
+        [0.0, 1.0, 0.0],
+        [-sin(fTheta), 0.0, cos(fTheta)],
+        [0.0, 0.0, 0.0]
+    ])
+
+    return matrix_multiply(triangle, rotate_y_matrix)
+```
+
+**Explanation:**
+- **Imports**: Imports the `math` module for trigonometric functions and `numpy` for numerical operations.
+- **Functions**:
+  - `matrix_multiply(inp_tri, matrix)`: Performs matrix multiplication where `inp_tri` is a set of input vectors and `matrix` is a transformation matrix.
+  - `rotate_x(fTheta, triangle)`: Rotates the triangle around the x-axis by `fTheta` radians.
+  - `rotate_z(fTheta, triangle)`: Rotates the triangle around the z-axis by `fTheta` radians.
+  - `rotate_y(fTheta, triangle)`: Rotates the triangle around the y-axis by `fTheta` radians.
+
+### Normal Vectors and Inverse Matrix Calculation
+
+```python
+def get_normals(translated_vec):
+    point = translated_vec[:, 0]
+    normal = np.cross(translated_vec[:, 1] - point, translated_vec[:, 2] - point)
+    return normal / np.linalg.norm(normal, axis=1)[:, np.newaxis]
+
+
+def quick_inverse(pos, direction, up):
+    newUp = up - direction * np.sum(up @ direction)
+    newUp /= np.linalg.norm(newUp)
+
+    m = np.asarray([np.cross(newUp, direction), newUp, direction])
+
+    qim = np.zeros([4, 3])
+    qim[:3] = np.flipud(np.rot90(m))
+
+    qim[3] = np.sum(-m * pos, axis=1)
+
+    return qim
+```
+
+**Explanation:**
+- **Functions**:
+  - `get_normals(translated_vec)`: Computes normalized normal vectors for a set of translated vectors.
+  - `quick_inverse(pos, direction, up)`: Calculates a quick inverse matrix based on position (`pos`), viewing direction (`direction`), and up vector (`up`). This is used for camera transformations.
+
+### Lighting Models and Camera Setup
+
+```python
+light = [0.57735027, 0.57735027, 0.57735027]
+camera_position = np.array([0., 0, -100.0])
+camera_direction = np.asarray([-1.0, 1.0, 1.0])
+camera_direction /= np.linalg.norm(camera_direction)
+upvector = [0.0, 1.0, 0.0]
+forwardvector = np.asarray(camera_direction)
+fYaw = 0
+fXaw = 0
+
+
+def light_diff(normal, factor=0):
+    diff = -((normal @ light) - factor) / (1.0 + factor)
+    diff[diff < 0] = 0
+    return diff
+
+
+def light_reflect(normal):
+    return -(camera_direction - (normal * 2 * (normal @ camera_direction)[:, np.newaxis]))
+
+
+def highlight(normal, degree=1):
+    I = light_reflect(normal) @ light
+    I[I < 0] = 0
+    return np.power(I, degree)
+
+
+def blinn_highlight(normal, degree=1):
+    h = light + camera_direction
+    h /= np.linalg.norm(h)
+    I = -(normal @ h)
+    I[I < 0] = 0
+    return np.power(I, degree)
+
+
+light_ambient = 0.25
+
+
+def lambert(normal):
+    return light_diff(normal) * 0.75 + light_ambient
+
+
+def wrap(normal):
+    return light_diff(normal, 0.75)
+
+
+def phong(normal):
+    return light_diff(normal) * 0.5 + highlight(normal, 30) + light_ambient
+
+
+def blinn(normal):
+    return light_diff(normal) * 0.5 + blinn_highlight(normal, 30) + light_ambient
+
+
+def metal(normal):
+    return blinn_highlight(normal, 5) + light_ambient
+```
+
+**Explanation:**
+- **Global Variables**:
+  - `light`: Direction vector for the light source.
+  - `camera_position`, `camera_direction`, `upvector`, `forwardvector`, `fYaw`, `fXaw`: Variables related to camera position and orientation.
+- **Lighting Functions**:
+  - Various lighting models (`light_diff`, `light_reflect`, `highlight`, `blinn_highlight`, `lambert`, `wrap`, `phong`, `blinn`, `metal`) compute illumination effects based on surface normals and light sources.
+
+### Model Loading and Processing
+
+```python
+def open_model(file):
+    tx_model, vertex, faces, colors, colorsi = open(file, "r"), [], [], [], []
+
+    if file.split(".")[-1] == "obj":
+        for line in tx_model:
+            if line.startswith("v "):
+                vertex.append([float(point) for point in line.split()[1:]] + [1])
+            elif line.startswith("f "):
+                faces_ = line.split()[1:]
+                faces.append([int(face_.split('/')[0]) - 1 for face_ in faces_])
+            elif line.startswith("c "):
+                colors.append(list(map(int, line[2:].split(" ")[1].split("/"))))
+                colorsi.append(int(line[2:].split(" ")[0]))
+    elif file.split(".")[-1] == "mdl":
+        for line in tx_model:
+            if line.startswith("p "):
+                vertex.append([float(point) for point in line.split()[1:]] + [1])
+            elif line.startswith("f ") or line.startswith("ff "):
+                faces_ = line.split()[1]
+                faces.append([int(face_) for face_ in faces_.split("/")])
+            elif line.startswith("c "):
+                colors.append(list(map(int, line[2:].split(" ")[1].split("/"))))
+                colorsi.append(int(line[2:].split(" ")[0]))
+
+    mdl, obj = [vertex, faces], []
+
+    for i in range(len(mdl[1])):
+        for j in range(len(mdl[1][i])):
+            line = []
+            for element in mdl[1][i]:
+                line.append(np.array([float(mdl[0][element][0]), float(mdl[0][element][1]), float(mdl[0][element][2])], dtype=np.float64))
+            obj.append(np.array(line))
+
+    color = [None for i in range(len(obj))]
+    
+    for i, j in enumerate(colorsi):
+        color[j] = colors[i]
+
+    if len(colorsi) != 0:
+        for i in range(0, max(colorsi) + 1):
+            if i not in colorsi:
+                color[i] = [1, 1, 1]
+    else:
+        for i in range(0, len(obj)):
+            color[i] = [1, 1, 1]
+
+    return np.asarray(obj), np.asarray(color)
+```
+
+**Explanation:**
+- **Function `open_model(file)`**:
+  - Reads and processes a 3D model file (`obj` or `mdl`).
+  - Parses vertices (`vertex`), faces (`faces`), and colors (`colors`).
+  - Constructs the model (`obj`) from vertices and faces.
+  - Assigns colors to model components based on file format.
+  - Returns the constructed 3D model (`obj`) and associated colors (`color`).
 
 
 ## Images
@@ -182,3 +664,16 @@ Created by Arseny Zolotarev on July 18, 2023.
 * Sputnik trajectories
 ![Earth mass equals 729](https://github.com/zolars1966/3-Body-problem/assets/70763346/a1994fed-5746-4b94-bb31-a60abaadf8e6)
 ![Earth mass equals 243](https://github.com/zolars1966/3-Body-problem/assets/70763346/eb0ab3d6-051b-45e9-9d9d-8663c644d9e0)
+
+## Contributing
+
+Contributions are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+© 2019-2024 Zolars. This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+Developed by Arseny Zolotarev
+Initial development date: Tuesday, 18th of July, 2023
