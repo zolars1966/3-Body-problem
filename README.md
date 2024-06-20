@@ -42,6 +42,52 @@ python main.py
 
 The application will open a Pygame window displaying the simulation. You can switch between 2D and 3D modes and control various aspects of the simulation using the keyboard.
 
+## Принципы работы алгоритмов для задачи N-тел
+Задача N-тел заключается в вычислении движения N тел, взаимодействующих с гравитацией. Несмотря на то, что аналитических решений для N-тел нет, можно использовать численные методы.
+
+### Простые методы
+1. **Метод Эйлера** (наивный подход):
+   - На каждом шаге времени изменяются позиции и скорости тел на основе текущих ускорений.
+   - Простой, но неустойчивый и низкоточный.
+
+   ```python
+   def euler_step(bodies, dt):
+       for body in bodies:
+           body.velocity += body.force / body.mass * dt
+           body.position += body.velocity * dt
+   ```
+
+2. **Верле (Velocity Verlet)**:
+   - Улучшает стабильность, делая метод более точным по сравнению с методом Эйлера.
+   - Шаги по вычислению нового положения и скорости чередуются таким образом, чтобы сохранить энергетическую устойчивость.
+
+   ```python
+   def velocity_verlet_step(bodies, dt):
+       for body in bodies:
+           new_position = body.position + body.velocity * dt + 0.5 * body.force / body.mass * dt**2
+           new_force = compute_force(bodies)
+           new_velocity = body.velocity + 0.5 * (body.force + new_force) / body.mass * dt
+           body.position = new_position
+           body.velocity = new_velocity
+   ```
+
+### Эффективные методы
+1. **Barnes-Hut алгоритм**:
+   - Разделяет пространство на квадранты (в 2D) или октанты (в 3D) и использует приближенные силы для дальних тел.
+   - Снижает сложность до \(O(N \log N)\) по сравнению с \(O(N^2)\) для полных вычислений.
+
+   ```python
+   def barnes_hut_step(bodies, dt):
+       tree = build_quad_tree(bodies)
+       for body in bodies:
+           force = compute_force_barnes_hut(tree, body)
+           body.update(force, dt)
+   ```
+
+2. **Алгоритм на основе зон пересечения (Fast Multipole Method, FMM)**:
+   - Еще один способ сокращения количества вычислений путем разделения областей притягивающих масс.
+   - Подходит для очень большого числа тел и предоставляет высокую точность.
+
 ## Controls
 
 ### Mouse Controls:
