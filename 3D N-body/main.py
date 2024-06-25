@@ -167,11 +167,11 @@ if __name__ == "__main__":
 
     colors = np.asarray([1, 1, 1])
     # obj = np.asarray([[planet.pos, sputnik.pos, moon.pos]])
-    tetrahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/tetrahedron.mdl")
-    cube, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/cube.obj")
-    octahedron, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/samples/platons/octahedron.mdl")
-    sphere, colors = open_model("/Users/zolars/Documents/Projects/miph/obj/sphere.obj")
-    axes, axes_colors = open_model("/Users/zolars/Documents/Projects/miph/obj/OLC/axis.obj")
+    tetrahedron, colors = open_model("obj/tetrahedron.mdl")
+    cube, colors = open_model("obj/cube.obj")
+    octahedron, colors = open_model("obj/octahedron.mdl")
+    sphere, colors = open_model("obj/sphere.obj")
+    axes, axes_colors = open_model("obj/OLC/axis.obj")
 
     cube /= 4
     tetrahedron = (tetrahedron - np.sum(tetrahedron, axis=1)[:, None] / 4) / 1.25
